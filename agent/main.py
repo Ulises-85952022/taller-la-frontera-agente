@@ -50,9 +50,7 @@ async def webhook_verificacion(request: Request):
     return {"status": "ok"}
 
 
-@app.post("/webhook/messages")
-@app.post("/webhook")
-async def webhook_handler(request: Request):
+async def _procesar_webhook(request: Request):
     try:
         mensajes = await proveedor.parsear_webhook(request)
 
@@ -76,3 +74,13 @@ async def webhook_handler(request: Request):
     except Exception as e:
         logger.error(f"Error en webhook: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/webhook")
+async def webhook_handler(request: Request):
+    return await _procesar_webhook(request)
+
+
+@app.post("/webhook/messages")
+async def webhook_handler_messages(request: Request):
+    return await _procesar_webhook(request)
